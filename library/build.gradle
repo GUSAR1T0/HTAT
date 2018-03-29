@@ -1,0 +1,5 @@
+apply plugin: 'java'
+
+dependencies {
+	testCompile 'org.junit.jupiter:junit-jupiter-api:5.1.0'
+}

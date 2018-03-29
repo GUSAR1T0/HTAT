@@ -1,0 +1,6 @@
+include 'library'
+include 'application'
+
+rootProject.name = 'HTAT'
+project(':library').name = 'Anemone'
+project(':application').name = 'Boronia'
