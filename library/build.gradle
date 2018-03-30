@@ -1,5 +1,10 @@
-apply plugin: 'java'
+plugins { id "io.spring.dependency-management" version "1.0.4.RELEASE" }
 
 dependencies {
-	testCompile 'org.junit.jupiter:junit-jupiter-api:5.1.0'
+	compile('org.springframework.boot:spring-boot-starter')
+	testCompile('org.springframework.boot:spring-boot-starter-test')
+}
+
+dependencyManagement {
+	imports { mavenBom("org.springframework.boot:spring-boot-dependencies:${rootProject.springBootVersion}") }
 }

@@ -1,9 +1,14 @@
-apply plugin: 'java'
-apply plugin: 'application'
+buildscript {
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${rootProject.springBootVersion}")
+	}
+}
 
-mainClassName = 'store.vxdesign.htat.Main'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
 
 dependencies {
+	compile('org.springframework.boot:spring-boot-starter')
 	compile project(':Anemone')
-	testCompile 'org.junit.jupiter:junit-jupiter-api:5.1.0'
+	testCompile('org.springframework.boot:spring-boot-starter-test')
 }
