@@ -16,6 +16,10 @@ allprojects {
         mavenCentral()
     }
 
+    dependencies {
+        compileOnly('org.projectlombok:lombok:1.16.20')
+    }
+
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
 
