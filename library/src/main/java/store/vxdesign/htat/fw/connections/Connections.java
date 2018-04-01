@@ -2,6 +2,8 @@ package store.vxdesign.htat.fw.connections;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import store.vxdesign.htat.fw.connections.ssh.SshConnection;
+import store.vxdesign.htat.fw.connections.ssh.SshConnectionProperties;
 import store.vxdesign.htat.fw.exceptions.ConnectionException;
 import store.vxdesign.htat.fw.properties.MergedProperties;
 
@@ -37,5 +39,9 @@ public class Connections {
         }
 
         return connection;
+    }
+
+    public Shell getSshConnection() {
+        return getConnection(SshConnection.class, mergedProperties.getProperties(SshConnectionProperties.class));
     }
 }
