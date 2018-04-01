@@ -21,8 +21,8 @@ import java.util.regex.Pattern;
 
 @Service
 public class SshConnection extends AbstractConnection<SshConnectionProperties> {
-    private final int connectionTimeout = 6000;
-    private final int delayWaitTimeout = 100;
+    private final int connectionTimeoutInMilliseconds = 6000;
+    private final int delayWaitTimeoutInMilliseconds = 10;
 
     private JSch jsch;
     private Session session;
@@ -41,7 +41,7 @@ public class SshConnection extends AbstractConnection<SshConnectionProperties> {
                 session.setPassword(properties.getPassword());
                 session.setDaemonThread(true);
                 properties.getOptions().forEach(session::setConfig);
-                session.connect(connectionTimeout);
+                session.connect(connectionTimeoutInMilliseconds);
             } catch (JSchException e) {
                 throw new ConnectionException("Failed to create session for %s@%s:%d: %s", properties.getUser(), properties.getHost(), properties.getPort(), e);
             }
@@ -50,11 +50,7 @@ public class SshConnection extends AbstractConnection<SshConnectionProperties> {
 
     @Override
     public void disconnect() {
-        disconnect(() -> {
-            if (session != null) {
-                session.disconnect();
-            }
-        });
+        disconnect(() -> session.disconnect());
     }
 
     @Override
@@ -82,7 +78,7 @@ public class SshConnection extends AbstractConnection<SshConnectionProperties> {
 
                 channel.connect();
                 while (!channel.isConnected()) {
-                    TimeUnit.SECONDS.sleep(delayWaitTimeout);
+                    TimeUnit.MILLISECONDS.sleep(delayWaitTimeoutInMilliseconds);
                 }
 
                 LocalDateTime start = LocalDateTime.now();
@@ -107,7 +103,7 @@ public class SshConnection extends AbstractConnection<SshConnectionProperties> {
 
                 channel.disconnect();
                 while (channel.isConnected()) {
-                    TimeUnit.SECONDS.sleep(delayWaitTimeout);
+                    TimeUnit.MILLISECONDS.sleep(delayWaitTimeoutInMilliseconds);
                 }
 
                 return commandResult;

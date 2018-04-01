@@ -5,6 +5,7 @@ dependencies {
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 	compile('com.jcraft:jsch:0.1.54')
 	compile('commons-io:commons-io:2.6')
+	compile('commons-net:commons-net:3.6')
 }
 
 dependencyManagement {

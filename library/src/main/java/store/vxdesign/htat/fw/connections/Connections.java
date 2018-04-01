@@ -4,6 +4,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import store.vxdesign.htat.fw.connections.ssh.SshConnection;
 import store.vxdesign.htat.fw.connections.ssh.SshConnectionProperties;
+import store.vxdesign.htat.fw.connections.telnet.TelnetConnection;
+import store.vxdesign.htat.fw.connections.telnet.TelnetConnectionProperties;
 import store.vxdesign.htat.fw.exceptions.ConnectionException;
 import store.vxdesign.htat.fw.properties.MergedProperties;
 
@@ -43,5 +45,9 @@ public class Connections {
 
     public Shell getSshConnection() {
         return getConnection(SshConnection.class, mergedProperties.getProperties(SshConnectionProperties.class));
+    }
+
+    public Shell getTelnetConnection() {
+        return getConnection(TelnetConnection.class, mergedProperties.getProperties(TelnetConnectionProperties.class));
     }
 }
