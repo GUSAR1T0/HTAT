@@ -1,9 +1,9 @@
 package store.vxdesign.htat.fw.connections.telnet;
 
 import org.apache.commons.net.telnet.TelnetClient;
-import org.springframework.stereotype.Service;
 import store.vxdesign.htat.fw.connections.AbstractConnection;
 import store.vxdesign.htat.fw.connections.CommandResult;
+import store.vxdesign.htat.fw.connections.ConnectionPatterns;
 import store.vxdesign.htat.fw.exceptions.ConnectionException;
 
 import java.io.IOException;
@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
-@Service
 public class TelnetConnection extends AbstractConnection<TelnetConnectionProperties> {
     private final int connectionTimeoutInMilliseconds = 10;
 
@@ -33,13 +32,13 @@ public class TelnetConnection extends AbstractConnection<TelnetConnectionPropert
                     TimeUnit.SECONDS.sleep(connectionTimeoutInMilliseconds);
                 }
 
-                read(Pattern.compile("login:"));
+                read(ConnectionPatterns.login);
                 write(properties.getUser());
 
-                read(Pattern.compile("Password:"));
+                read(ConnectionPatterns.password);
                 write(properties.getPassword());
 
-                read(Pattern.compile("\\$"));
+                read(ConnectionPatterns.prompt);
             } catch (InterruptedException | IOException e) {
                 throw new ConnectionException("Failed to connect to %s@%s:%d: %s", properties.getUser(), properties.getHost(), properties.getPort(), e);
             }
@@ -71,7 +70,7 @@ public class TelnetConnection extends AbstractConnection<TelnetConnectionPropert
 
                 write(commandWithParameters);
 
-                String output = read(Pattern.compile("\\$")).
+                String output = read(ConnectionPatterns.prompt).
                         replaceFirst(commandWithParameters, "").
                         replaceAll("\\S*@\\S*$", "");
 
@@ -98,7 +97,8 @@ public class TelnetConnection extends AbstractConnection<TelnetConnectionPropert
         InputStream in = client.getInputStream();
         StringBuilder result = new StringBuilder();
         int ch;
-        while ((ch = in.read()) != -1 && (pattern == null || !pattern.matcher(result.toString() + (char) ch).find())) {
+        while ((ch = in.read()) != -1 &&
+                (pattern == null || !pattern.matcher(String.format("%s%c", result, ch)).find())) {
             result.append((char) ch);
         }
         return result.toString();

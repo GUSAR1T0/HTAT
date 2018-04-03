@@ -5,7 +5,6 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import org.apache.commons.io.IOUtils;
-import org.springframework.stereotype.Service;
 import store.vxdesign.htat.fw.connections.AbstractConnection;
 import store.vxdesign.htat.fw.connections.CommandResult;
 import store.vxdesign.htat.fw.exceptions.ConnectionException;
@@ -19,7 +18,6 @@ import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
-@Service
 public class SshConnection extends AbstractConnection<SshConnectionProperties> {
     private final int connectionTimeoutInMilliseconds = 6000;
     private final int delayWaitTimeoutInMilliseconds = 10;
