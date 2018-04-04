@@ -1,7 +1,6 @@
 package store.vxdesign.htat.fw.connections;
 
 import lombok.AccessLevel;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -12,7 +11,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@Data
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CommandResult {
     @Getter
