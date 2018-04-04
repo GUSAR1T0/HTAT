@@ -38,7 +38,9 @@ public class SshConnection extends AbstractConnection<SshConnectionProperties> {
                 session = jsch.getSession(properties.getUser(), properties.getHost(), properties.getPort());
                 session.setPassword(properties.getPassword());
                 session.setDaemonThread(true);
-                properties.getOptions().forEach(session::setConfig);
+                if (properties.getOptions() != null) {
+                    properties.getOptions().forEach(session::setConfig);
+                }
                 session.connect(connectionTimeoutInMilliseconds);
             } catch (JSchException e) {
                 throw new ConnectionException("Failed to create session for %s@%s:%d: %s", properties.getUser(), properties.getHost(), properties.getPort(), e);
