@@ -4,17 +4,16 @@ import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
-import org.apache.commons.io.IOUtils;
 import store.vxdesign.htat.core.connections.AbstractConnection;
 import store.vxdesign.htat.core.connections.CommandResult;
 import store.vxdesign.htat.core.exceptions.ConnectionException;
+import store.vxdesign.htat.core.utilities.commands.ShellCommand;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
-import java.nio.charset.Charset;
+import java.io.OutputStream;
 import java.time.LocalDateTime;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
@@ -59,9 +58,18 @@ public class SshConnection extends AbstractConnection<SshConnectionProperties> {
     }
 
     @Override
-    public CommandResult execute(String command, String... parameters) {
+    public CommandResult execute(ShellCommand command) {
+        return executor(null, null, command);
+    }
+
+    @Override
+    public CommandResult execute(int timeout, ShellCommand command) {
+        return executor(timeout, null, command);
+    }
+
+    @Override
+    protected CommandResult executor(Integer timeout, Pattern pattern, ShellCommand command) {
         return execute(() -> {
-            String commandWithParameters = String.format("%s %s", command, String.join(" ", parameters)).trim();
             try {
                 channel = (ChannelExec) session.openChannel("exec");
                 channel.run();
@@ -69,12 +77,11 @@ public class SshConnection extends AbstractConnection<SshConnectionProperties> {
                 throw new ConnectionException("Failed to create channel for %s@%s:%d: %s", properties.getUser(), properties.getHost(), properties.getPort(), e);
             }
 
-            try (PipedOutputStream errPipe = new PipedOutputStream();
-                 PipedInputStream errIs = new PipedInputStream(errPipe);
-                 InputStream is = channel.getInputStream()) {
+            try (OutputStream outputStream = channel.getOutputStream();
+                 InputStream inputStream = channel.getInputStream()) {
                 channel.setInputStream(null);
-                channel.setErrStream(errPipe);
-                channel.setCommand(commandWithParameters);
+                channel.setPty(true);
+                channel.setCommand(command.toString());
 
                 channel.connect();
                 while (!channel.isConnected()) {
@@ -83,18 +90,29 @@ public class SshConnection extends AbstractConnection<SshConnectionProperties> {
 
                 LocalDateTime start = LocalDateTime.now();
 
-                channel.start();
+                if (command.isSudoer()) {
+                    write(outputStream, properties.getPassword());
+                }
 
-                // The lines below can be wrong
-                String output = IOUtils.toString(is, Charset.defaultCharset());
-                String error = IOUtils.toString(errIs, Charset.defaultCharset());
+                String message = read(timeout, pattern, inputStream).
+                        replaceFirst(command.isSudoer() ? properties.getPassword() : "", "").
+                        trim();
+                String output = "", error = "";
+                if (channel.getExitStatus() == 0) {
+                    output = message;
+                } else {
+                    error = message;
+                }
 
                 LocalDateTime end = LocalDateTime.now();
 
+                skipInputStreamToEnd(inputStream);
+
                 CommandResult commandResult = CommandResult.builder().
                         setStart(start).
-                        setCommand(commandWithParameters).
-                        setPattern(Pattern.compile("")).
+                        setCommand(command.toString()).
+                        setTimeout(timeout).
+                        setPattern(pattern).
                         setStatus(channel.getExitStatus()).
                         setOutput(output).
                         setError(error).
@@ -107,8 +125,8 @@ public class SshConnection extends AbstractConnection<SshConnectionProperties> {
                 }
 
                 return commandResult;
-            } catch (InterruptedException | IOException | JSchException e) {
-                throw new ConnectionException("Failed to execute command '%s' on %s@%s:%d: %s", commandWithParameters,
+            } catch (InterruptedException | ExecutionException | IOException | JSchException e) {
+                throw new ConnectionException("Failed to execute command '%s' on %s@%s:%d: %s", command,
                         properties.getUser(), properties.getHost(), properties.getPort(), e);
             }
         });

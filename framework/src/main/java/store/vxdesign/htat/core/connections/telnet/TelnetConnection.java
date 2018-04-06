@@ -5,10 +5,13 @@ import store.vxdesign.htat.core.connections.AbstractConnection;
 import store.vxdesign.htat.core.connections.CommandResult;
 import store.vxdesign.htat.core.connections.ConnectionPatterns;
 import store.vxdesign.htat.core.exceptions.ConnectionException;
+import store.vxdesign.htat.core.utilities.commands.ShellCommand;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.time.LocalDateTime;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
@@ -32,14 +35,17 @@ public class TelnetConnection extends AbstractConnection<TelnetConnectionPropert
                     TimeUnit.SECONDS.sleep(connectionTimeoutInMilliseconds);
                 }
 
-                read(ConnectionPatterns.login);
-                write(properties.getUser());
+                InputStream inputStream = client.getInputStream();
+                OutputStream outputStream = client.getOutputStream();
 
-                read(ConnectionPatterns.password);
-                write(properties.getPassword());
+                read(10, ConnectionPatterns.login, inputStream);
+                write(outputStream, properties.getUser());
 
-                read(ConnectionPatterns.prompt);
-            } catch (InterruptedException | IOException e) {
+                read(10, ConnectionPatterns.password, inputStream);
+                write(outputStream, properties.getPassword());
+
+                read(10, ConnectionPatterns.prompt, inputStream);
+            } catch (InterruptedException | ExecutionException | IOException e) {
                 throw new ConnectionException("Failed to connect to %s@%s:%d: %s", properties.getUser(), properties.getHost(), properties.getPort(), e);
             }
         });
@@ -62,50 +68,54 @@ public class TelnetConnection extends AbstractConnection<TelnetConnectionPropert
     }
 
     @Override
-    public CommandResult execute(String command, String... parameters) {
+    public CommandResult execute(ShellCommand command) {
+        return executor(null, ConnectionPatterns.prompt, command);
+    }
+
+    @Override
+    public CommandResult execute(int timeout, ShellCommand command) {
+        return executor(timeout, ConnectionPatterns.prompt, command);
+    }
+
+    @Override
+    protected CommandResult executor(Integer timeout, Pattern pattern, ShellCommand command) {
         return execute(() -> {
-            String commandWithParameters = String.format("%s %s", command, String.join(" ", parameters)).trim();
             try {
+                InputStream inputStream = client.getInputStream();
+                OutputStream outputStream = client.getOutputStream();
+
                 LocalDateTime start = LocalDateTime.now();
 
-                write(commandWithParameters);
+                write(outputStream, command.toString());
 
-                String output = read(ConnectionPatterns.prompt).
-                        replaceFirst(commandWithParameters, "").
-                        replaceAll("\\S*@\\S*$", "");
+                if (command.isSudoer()) {
+                    write(outputStream, properties.getPassword());
+                }
+
+                String output = read(timeout, pattern, inputStream).
+                        replaceFirst(command.toString(), "").
+                        replaceFirst(command.isSudoer() ? properties.getPassword() : "", "").
+                        replaceAll(pattern == null ? ConnectionPatterns.prompt.pattern() : "", "").
+                        trim();
 
                 LocalDateTime end = LocalDateTime.now();
 
-                // TODO: Add defining of exit status
+                skipInputStreamToEnd(inputStream);
+
                 return CommandResult.builder().
                         setStart(start).
-                        setCommand(commandWithParameters).
-                        setPattern(Pattern.compile("")).
+                        setCommand(command.toString()).
+                        setTimeout(timeout).
+                        setPattern(pattern).
                         setStatus(0).
                         setOutput(output).
                         setError("").
                         setEnd(end).
                         build();
-            } catch (Exception e) {
-                throw new ConnectionException("Failed to execute command '%s' on %s@%s:%d: %s", commandWithParameters,
+            } catch (InterruptedException | ExecutionException | IOException e) {
+                throw new ConnectionException("Failed to execute command '%s' on %s@%s:%d: %s", command,
                         properties.getUser(), properties.getHost(), properties.getPort(), e);
             }
         });
-    }
-
-    private String read(Pattern pattern) throws IOException {
-        InputStream in = client.getInputStream();
-        StringBuilder result = new StringBuilder();
-        int ch;
-        while ((ch = in.read()) != -1 &&
-                (pattern == null || !pattern.matcher(String.format("%s%c", result, ch)).find())) {
-            result.append((char) ch);
-        }
-        return result.toString();
-    }
-
-    private void write(String command) throws IOException {
-        client.getOutputStream().write(command.concat("\n").getBytes());
-        client.getOutputStream().flush();
     }
 }

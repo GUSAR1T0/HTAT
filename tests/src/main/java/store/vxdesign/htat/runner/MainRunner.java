@@ -8,6 +8,7 @@ import org.springframework.context.annotation.ComponentScan;
 import store.vxdesign.htat.core.connections.CommandResult;
 import store.vxdesign.htat.core.connections.Connections;
 import store.vxdesign.htat.core.connections.Shell;
+import store.vxdesign.htat.core.utilities.commands.ShellCommand;
 
 @SpringBootApplication
 @ComponentScan(value = "store.vxdesign.htat")
@@ -21,7 +22,7 @@ public class MainRunner implements CommandLineRunner {
     @Override
     public void run(String... args) {
         Shell shell = connections.getSshConnection();
-        CommandResult result = shell.execute("ls", "-la");
+        CommandResult result = shell.execute(ShellCommand.builder().command("ls").arguments("-l", "-a").build());
         shell.close();
         System.out.println(result);
     }
