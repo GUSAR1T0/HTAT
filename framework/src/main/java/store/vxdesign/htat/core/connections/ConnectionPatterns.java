@@ -10,5 +10,5 @@ public final class ConnectionPatterns {
 
     public static final Pattern password = Pattern.compile("Password:");
 
-    public static final Pattern prompt = Pattern.compile("\\$");
+    public static final Pattern prompt = Pattern.compile("(\\S*)@(\\S*):(\\S*)\\$$");
 }

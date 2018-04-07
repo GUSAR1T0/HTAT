@@ -23,6 +23,9 @@ public class CommandResult {
     private String command;
 
     @Getter
+    private Integer timeout;
+
+    @Getter
     private Pattern pattern;
 
     @Getter
@@ -38,10 +41,8 @@ public class CommandResult {
         return new CommandResult().new CommandResultBuilder();
     }
 
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public class CommandResultBuilder {
-        private CommandResultBuilder() {
-        }
-
         private CommandResultBuilder setter(Consumer<CommandResult> runnable) {
             runnable.accept(CommandResult.this);
             return this;
@@ -57,6 +58,10 @@ public class CommandResult {
 
         public CommandResultBuilder setCommand(String command) {
             return setter(commandResult -> commandResult.command = command);
+        }
+
+        public CommandResultBuilder setTimeout(Integer timeout) {
+            return setter(commandResult -> commandResult.timeout = timeout);
         }
 
         public CommandResultBuilder setPattern(Pattern pattern) {
@@ -82,15 +87,18 @@ public class CommandResult {
 
     @Override
     public String toString() {
+        String timeout = this.timeout == null ? "unset" : this.timeout.toString();
+        String pattern = this.pattern == null ? "unset" : this.pattern.toString();
         return String.format(
                 String.format("%9s", "START") + ": %s%n" +
                         String.format("%9s", "END") + ": %s%n" +
                         String.format("%9s", "COMMAND") + ": %s%n" +
+                        String.format("%9s", "TIMEOUT") + ": %s%n" +
                         String.format("%9s", "PATTERN") + ": %s%n" +
                         String.format("%9s", "STATUS") + ": %d%n" +
                         String.format("%9s", "OUTPUT") + ": %s%n" +
                         String.format("%9s", "ERROR") + ": %s",
-                start, end, command, pattern, status, transform(output), transform(error));
+                start, end, command, timeout, pattern, status, transform(output), transform(error));
     }
 
     private static String transform(String input) {
