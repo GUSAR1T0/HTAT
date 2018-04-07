@@ -10,8 +10,8 @@ import java.util.Map;
 
 @EqualsAndHashCode(callSuper = true)
 @Component
+@Getter
+@Setter
 public class SshConnectionProperties extends ConnectionProperties {
-    @Getter
-    @Setter
     private Map<String, String> options;
 }

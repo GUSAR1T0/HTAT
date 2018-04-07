@@ -81,7 +81,10 @@ public abstract class AbstractConnection<P extends ConnectionProperties> impleme
         if (scheduledFuture != null && !scheduledFuture.isDone()) {
             scheduledFuture.cancel(true);
         }
-        scheduledExecutorService.shutdown();
+
+        if (scheduledExecutorService != null && !scheduledExecutorService.isShutdown()) {
+            scheduledExecutorService.shutdown();
+        }
 
         if (streamReader != null && !streamReader.isShutdown()) {
             streamReader.shutdown();
