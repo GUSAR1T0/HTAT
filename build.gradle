@@ -27,6 +27,7 @@ allprojects {
         module {
             inheritOutputDirs = false
             outputDir = file("$buildDir/classes/java/main")
+            testOutputDir = file("$buildDir/classes/java/test")
             downloadJavadoc = true
         }
     }
