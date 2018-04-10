@@ -97,34 +97,35 @@ public class SshConnection extends AbstractConnection<SshConnectionProperties> {
                 String message = read(timeout, pattern, inputStream).
                         replaceFirst(command.isSudoer() ? properties.getPassword() : "", "").
                         trim();
-                String output = "", error = "";
-                if (channel.getExitStatus() == 0) {
-                    output = message;
-                } else {
-                    error = message;
-                }
 
                 LocalDateTime end = LocalDateTime.now();
 
                 skipInputStreamToEnd(inputStream);
 
-                CommandResult commandResult = CommandResult.builder().
-                        setStart(start).
-                        setCommand(command.toString()).
-                        setTimeout(timeout).
-                        setPattern(pattern).
-                        setStatus(channel.getExitStatus()).
-                        setOutput(output).
-                        setError(error).
-                        setEnd(end).
-                        build();
+                int status;
+                while (true) {
+                    if (channel.isClosed()) {
+                        status = channel.getExitStatus();
+                        break;
+                    }
+                    TimeUnit.MILLISECONDS.sleep(delayWaitTimeoutInMilliseconds);
+                }
 
                 channel.disconnect();
                 while (channel.isConnected()) {
                     TimeUnit.MILLISECONDS.sleep(delayWaitTimeoutInMilliseconds);
                 }
 
-                return commandResult;
+                return CommandResult.builder().
+                        setStart(start).
+                        setCommand(command.toString()).
+                        setTimeout(timeout).
+                        setPattern(pattern).
+                        setStatus(status).
+                        setOutput(status == 0 ? message : "").
+                        setError(status != 0 ? message : "").
+                        setEnd(end).
+                        build();
             } catch (InterruptedException | ExecutionException | IOException | JSchException e) {
                 throw new ConnectionException("Failed to execute command '%s' on %s@%s:%d: %s", command,
                         properties.getUser(), properties.getHost(), properties.getPort(), e);
