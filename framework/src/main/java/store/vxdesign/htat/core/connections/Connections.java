@@ -1,6 +1,6 @@
 package store.vxdesign.htat.core.connections;
 
-import store.vxdesign.htat.core.exceptions.ConnectionException;
+import store.vxdesign.htat.core.exceptions.InstanceInitializationException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -15,13 +15,13 @@ public abstract class Connections {
     protected <C extends AbstractConnection & Shell, P extends ConnectionProperties> Shell getConnection(Class<C> clazz, P properties) {
         Predicate<AbstractConnection> predicate = connection -> clazz.isInstance(connection) && Objects.equals(connection.getProperties(), properties);
         Optional<AbstractConnection> optionalConnection = connections.stream().filter(predicate).findFirst();
-        C connection = optionalConnection.isPresent() ? clazz.cast(optionalConnection.get()) : null;
+        C connection = optionalConnection.map(clazz::cast).orElse(null);
 
         if (connection == null) {
             try {
                 connection = clazz.getConstructor(properties.getClass()).newInstance(properties);
             } catch (IllegalAccessException | InstantiationException | InvocationTargetException | NoSuchMethodException e) {
-                throw new ConnectionException("Failed to create %s instance: %s", clazz.getName(), e);
+                throw new InstanceInitializationException("Failed to create %s instance: %s", clazz.getName(), e);
             }
             connections.add(connection);
         }

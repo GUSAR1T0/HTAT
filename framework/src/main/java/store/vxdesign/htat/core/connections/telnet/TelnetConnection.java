@@ -4,7 +4,7 @@ import org.apache.commons.net.telnet.TelnetClient;
 import store.vxdesign.htat.core.connections.AbstractConnection;
 import store.vxdesign.htat.core.connections.CommandResult;
 import store.vxdesign.htat.core.connections.ConnectionPatterns;
-import store.vxdesign.htat.core.exceptions.ConnectionException;
+import store.vxdesign.htat.core.exceptions.ConnectionHandlingException;
 import store.vxdesign.htat.core.utilities.commands.ShellCommand;
 
 import java.io.IOException;
@@ -46,7 +46,7 @@ public class TelnetConnection extends AbstractConnection<TelnetConnectionPropert
 
                 read(10, ConnectionPatterns.prompt, inputStream);
             } catch (InterruptedException | ExecutionException | IOException e) {
-                throw new ConnectionException("Failed to connect to %s@%s:%d: %s", properties.getUser(), properties.getHost(), properties.getPort(), e);
+                throw new ConnectionHandlingException("Failed to connect to %s@%s:%d: %s", properties.getUser(), properties.getHost(), properties.getPort(), e);
             }
         });
     }
@@ -57,7 +57,7 @@ public class TelnetConnection extends AbstractConnection<TelnetConnectionPropert
             try {
                 client.disconnect();
             } catch (IOException e) {
-                throw new ConnectionException("Failed to disconnect from %s@%s:%d: %s", properties.getUser(), properties.getHost(), properties.getPort(), e);
+                throw new ConnectionHandlingException("Failed to disconnect from %s@%s:%d: %s", properties.getUser(), properties.getHost(), properties.getPort(), e);
             }
         });
     }
@@ -113,7 +113,7 @@ public class TelnetConnection extends AbstractConnection<TelnetConnectionPropert
                         setEnd(end).
                         build();
             } catch (InterruptedException | ExecutionException | IOException e) {
-                throw new ConnectionException("Failed to execute command '%s' on %s@%s:%d: %s", command,
+                throw new ConnectionHandlingException("Failed to execute command '%s' on %s@%s:%d: %s", command,
                         properties.getUser(), properties.getHost(), properties.getPort(), e);
             }
         });

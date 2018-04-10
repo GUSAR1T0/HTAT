@@ -6,7 +6,7 @@ import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import store.vxdesign.htat.core.connections.AbstractConnection;
 import store.vxdesign.htat.core.connections.CommandResult;
-import store.vxdesign.htat.core.exceptions.ConnectionException;
+import store.vxdesign.htat.core.exceptions.ConnectionHandlingException;
 import store.vxdesign.htat.core.utilities.commands.ShellCommand;
 
 import java.io.IOException;
@@ -42,7 +42,7 @@ public class SshConnection extends AbstractConnection<SshConnectionProperties> {
                 }
                 session.connect(connectionTimeoutInMilliseconds);
             } catch (JSchException e) {
-                throw new ConnectionException("Failed to create session for %s@%s:%d: %s", properties.getUser(), properties.getHost(), properties.getPort(), e);
+                throw new ConnectionHandlingException("Failed to create session for %s@%s:%d: %s", properties.getUser(), properties.getHost(), properties.getPort(), e);
             }
         });
     }
@@ -74,7 +74,7 @@ public class SshConnection extends AbstractConnection<SshConnectionProperties> {
                 channel = (ChannelExec) session.openChannel("exec");
                 channel.run();
             } catch (JSchException e) {
-                throw new ConnectionException("Failed to create channel for %s@%s:%d: %s", properties.getUser(), properties.getHost(), properties.getPort(), e);
+                throw new ConnectionHandlingException("Failed to create channel for %s@%s:%d: %s", properties.getUser(), properties.getHost(), properties.getPort(), e);
             }
 
             try (OutputStream outputStream = channel.getOutputStream();
@@ -127,7 +127,7 @@ public class SshConnection extends AbstractConnection<SshConnectionProperties> {
                         setEnd(end).
                         build();
             } catch (InterruptedException | ExecutionException | IOException | JSchException e) {
-                throw new ConnectionException("Failed to execute command '%s' on %s@%s:%d: %s", command,
+                throw new ConnectionHandlingException("Failed to execute command '%s' on %s@%s:%d: %s", command,
                         properties.getUser(), properties.getHost(), properties.getPort(), e);
             }
         });

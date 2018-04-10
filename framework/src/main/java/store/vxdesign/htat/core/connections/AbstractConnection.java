@@ -1,8 +1,8 @@
 package store.vxdesign.htat.core.connections;
 
 import lombok.Getter;
-import store.vxdesign.htat.core.exceptions.ConnectionException;
 import store.vxdesign.htat.core.exceptions.ConnectionTimeoutException;
+import store.vxdesign.htat.core.exceptions.InstanceInitializationException;
 import store.vxdesign.htat.core.exceptions.PatternNotFoundException;
 import store.vxdesign.htat.core.utilities.commands.ShellCommand;
 
@@ -34,7 +34,7 @@ public abstract class AbstractConnection<P extends ConnectionProperties> impleme
         if (properties != null) {
             this.properties = properties;
         } else {
-            throw new ConnectionException("Connection cannot to create if properties are not stated");
+            throw new InstanceInitializationException("Connection instance cannot be created if properties are not stated");
         }
     }
 
