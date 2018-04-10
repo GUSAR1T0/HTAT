@@ -95,7 +95,7 @@ public class TelnetConnection extends AbstractConnection<TelnetConnectionPropert
                 String output = read(timeout, pattern, inputStream).
                         replaceFirst(command.toString(), "").
                         replaceFirst(command.isSudoer() ? properties.getPassword() : "", "").
-                        replaceAll(pattern == null ? ConnectionPatterns.prompt.pattern() : "", "").
+                        replaceAll(pattern != null ? pattern.pattern() : ConnectionPatterns.prompt.pattern(), "").
                         trim();
 
                 LocalDateTime end = LocalDateTime.now();
