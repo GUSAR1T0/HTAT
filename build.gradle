@@ -9,7 +9,7 @@ allprojects {
     apply plugin: 'idea'
 
     ext {
-        springBootVersion = '2.0.0.RELEASE'
+        springBootVersion = '2.0.1.RELEASE'
     }
 
     repositories {
