@@ -49,7 +49,7 @@ public class HostHolder extends AbstractHostHolder {
         if (properties != null) {
             return new ArrayList<>(Collections.singletonList(hostInstanceGenerator.apply(properties)));
         } else {
-            throw new InitializationException("Failed to initialize list or single %s instances.", propertiesClass.getName());
+            throw new InitializationException("Failed to initialize list of instances or single instance: %s.", propertiesClass.getName());
         }
     }
 
