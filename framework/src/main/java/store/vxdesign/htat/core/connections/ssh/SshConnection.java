@@ -34,12 +34,18 @@ public class SshConnection extends AbstractConnection<SshConnectionProperties> {
     public void connect() {
         connect(() -> {
             try {
+                logger.trace("Creating the session to host {}@{}:{}", properties.getUser(), properties.getHost(), properties.getPort());
                 session = jsch.getSession(properties.getUser(), properties.getHost(), properties.getPort());
                 session.setPassword(properties.getPassword());
+
+                logger.trace("Making session as daemon");
                 session.setDaemonThread(true);
+
+                logger.trace("Setting the options: {}", properties.getOptions());
                 if (properties.getOptions() != null) {
                     properties.getOptions().forEach(session::setConfig);
                 }
+
                 session.connect(connectionTimeoutInMilliseconds);
             } catch (JSchException e) {
                 throw new ConnectionHandlingException("Failed to create session for %s@%s:%d: %s", properties.getUser(), properties.getHost(), properties.getPort(), e);
@@ -71,6 +77,7 @@ public class SshConnection extends AbstractConnection<SshConnectionProperties> {
     protected CommandResult executor(Integer timeout, Pattern pattern, ShellCommand command) {
         return execute(() -> {
             try {
+                logger.trace("Opening the 'exec' channel");
                 channel = (ChannelExec) session.openChannel("exec");
                 channel.run();
             } catch (JSchException e) {
@@ -80,9 +87,12 @@ public class SshConnection extends AbstractConnection<SshConnectionProperties> {
             try (OutputStream outputStream = channel.getOutputStream();
                  InputStream inputStream = channel.getInputStream()) {
                 channel.setInputStream(null);
-                channel.setPty(true);
-                channel.setCommand(command.toString());
 
+                logger.trace("Setting pseudo terminal for connection");
+                channel.setPty(true);
+
+                logger.debug("Executing the command: {}", command);
+                channel.setCommand(command.toString());
                 channel.connect();
                 while (!channel.isConnected()) {
                     TimeUnit.MILLISECONDS.sleep(delayWaitTimeoutInMilliseconds);
@@ -94,6 +104,7 @@ public class SshConnection extends AbstractConnection<SshConnectionProperties> {
                     write(outputStream, properties.getPassword());
                 }
 
+                logger.debug("Getting a result of execution");
                 String message = read(timeout, pattern, inputStream).
                         replaceFirst(command.isSudoer() ? properties.getPassword() : "", "").
                         trim();
@@ -111,12 +122,13 @@ public class SshConnection extends AbstractConnection<SshConnectionProperties> {
                     TimeUnit.MILLISECONDS.sleep(delayWaitTimeoutInMilliseconds);
                 }
 
+                logger.trace("Closing the 'exec' channel");
                 channel.disconnect();
                 while (channel.isConnected()) {
                     TimeUnit.MILLISECONDS.sleep(delayWaitTimeoutInMilliseconds);
                 }
 
-                return CommandResult.builder().
+                CommandResult result = CommandResult.builder().
                         setStart(start).
                         setCommand(command.toString()).
                         setTimeout(timeout).
@@ -126,6 +138,8 @@ public class SshConnection extends AbstractConnection<SshConnectionProperties> {
                         setError(status != 0 ? message : "").
                         setEnd(end).
                         build();
+                logger.trace("The result of execution is:\n{}", result);
+                return result;
             } catch (InterruptedException | ExecutionException | IOException | JSchException e) {
                 throw new ConnectionHandlingException("Failed to execute command '%s' on %s@%s:%d: %s", command,
                         properties.getUser(), properties.getHost(), properties.getPort(), e);

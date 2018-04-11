@@ -1,6 +1,8 @@
 package store.vxdesign.htat.core.connections;
 
 import lombok.Getter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import store.vxdesign.htat.core.exceptions.ConnectionTimeoutException;
 import store.vxdesign.htat.core.exceptions.InstanceInitializationException;
 import store.vxdesign.htat.core.exceptions.PatternNotFoundException;
@@ -22,6 +24,8 @@ import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 public abstract class AbstractConnection<P extends ConnectionProperties> implements Connection, Shell {
+    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Getter
     protected final P properties;
 
@@ -40,20 +44,22 @@ public abstract class AbstractConnection<P extends ConnectionProperties> impleme
 
     protected void connect(Runnable connect) {
         if (!isConnected()) {
+            logger.trace("Connecting to host: {}@{}:{}", properties.getUser(), properties.getHost(), properties.getPort());
             connect.run();
-            System.out.println("Connected to host");
+            logger.debug("Connected to host: {}@{}:{}", properties.getUser(), properties.getHost(), properties.getPort());
         } else {
-            System.out.println("Connection to host has already exist");
+            logger.trace("Connection to host {}@{}:{} has already exist", properties.getUser(), properties.getHost(), properties.getPort());
             scheduledFuture.cancel(true);
         }
     }
 
     protected void disconnect(Runnable disconnect) {
         if (isConnected()) {
+            logger.trace("Disconnecting from host: {}@{}:{}", properties.getUser(), properties.getHost(), properties.getPort());
             disconnect.run();
-            System.out.println("Disconnected from host");
+            logger.debug("Disconnected from host: {}@{}:{}", properties.getUser(), properties.getHost(), properties.getPort());
         } else {
-            System.out.println("Connection to host has already closed");
+            logger.trace("Connection to host {}@{}:{} has already closed", properties.getUser(), properties.getHost(), properties.getPort());
         }
     }
 
@@ -71,7 +77,7 @@ public abstract class AbstractConnection<P extends ConnectionProperties> impleme
         if (timeoutInSeconds >= 0) {
             this.timeoutInSeconds = timeoutInSeconds;
         } else {
-            // TODO: Add error log message
+            logger.error("Timeout was got incorrect: {}. The value should be more or equal than 0", timeoutInSeconds);
         }
     }
 
@@ -90,15 +96,15 @@ public abstract class AbstractConnection<P extends ConnectionProperties> impleme
             streamReader.shutdown();
         }
 
-        System.out.println("Disconnected and service is closed");
+        logger.trace("Connection was closed and service was shutdown");
     }
 
     private ScheduledFuture startClosingTask() {
         if (scheduledExecutorService == null || scheduledExecutorService.isShutdown()) {
             scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-            System.out.println("Scheduled executor service is created");
+            logger.trace("Scheduled executor service is created");
         } else {
-            System.out.println("Scheduled task will be recreated");
+            logger.trace("Scheduled task will be recreated");
         }
         return scheduledExecutorService.schedule(this::close, timeoutInSeconds, TimeUnit.SECONDS);
     }
@@ -172,6 +178,7 @@ public abstract class AbstractConnection<P extends ConnectionProperties> impleme
     }
 
     protected void skipInputStreamToEnd(InputStream inputStream) throws IOException {
+        logger.trace("Skipping the current marker position to end of input stream");
         while (true) {
             if (!(inputStream.available() > 0 && inputStream.read() != -1)) {
                 break;

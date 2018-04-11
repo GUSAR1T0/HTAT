@@ -22,8 +22,11 @@ public class MainRunner implements CommandLineRunner {
     public void run(String... args) {
         holder.initialize();
         GeneralHost host = holder.getGeneralHosts().get(0);
-        System.out.println(host.getProperties().getName());
-        System.out.println(host.getConnections().getSshConnection().execute(ShellCommand.builder().command("uname").arguments("-a").build()));
+//        System.out.println(host.getProperties().getName());
+        host.getConnections().getSshConnection().execute(ShellCommand.builder().command("uname").arguments("-a").build());
+        host.getConnections().getSshConnection().execute(ShellCommand.builder().command("ls").arguments("-la").build());
+        host.getConnections().getTelnetConnection().execute(ShellCommand.builder().command("uname").arguments("-a").build());
+        host.getConnections().getTelnetConnection().execute(ShellCommand.builder().command("ls").arguments("-la").build());
         holder.stop();
     }
 

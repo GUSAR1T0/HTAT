@@ -30,7 +30,6 @@ public class TelnetConnection extends AbstractConnection<TelnetConnectionPropert
         connect(() -> {
             try {
                 client.connect(properties.getHost(), properties.getPort());
-
                 while (!client.isConnected()) {
                     TimeUnit.SECONDS.sleep(connectionTimeoutInMilliseconds);
                 }
@@ -38,6 +37,7 @@ public class TelnetConnection extends AbstractConnection<TelnetConnectionPropert
                 InputStream inputStream = client.getInputStream();
                 OutputStream outputStream = client.getOutputStream();
 
+                logger.trace("Authenticating as {} on host {}:{}", properties.getUser(), properties.getHost(), properties.getPort());
                 read(10, ConnectionPatterns.login, inputStream);
                 write(outputStream, properties.getUser());
 
@@ -45,6 +45,7 @@ public class TelnetConnection extends AbstractConnection<TelnetConnectionPropert
                 write(outputStream, properties.getPassword());
 
                 read(10, ConnectionPatterns.prompt, inputStream);
+                logger.trace("Authentication was passed successfully");
             } catch (InterruptedException | ExecutionException | IOException e) {
                 throw new ConnectionHandlingException("Failed to connect to %s@%s:%d: %s", properties.getUser(), properties.getHost(), properties.getPort(), e);
             }
@@ -86,12 +87,14 @@ public class TelnetConnection extends AbstractConnection<TelnetConnectionPropert
 
                 LocalDateTime start = LocalDateTime.now();
 
+                logger.debug("Executing the command: {}", command);
                 write(outputStream, command.toString());
 
                 if (command.isSudoer()) {
                     write(outputStream, properties.getPassword());
                 }
 
+                logger.debug("Getting a result of execution");
                 String output = read(timeout, pattern, inputStream).
                         replaceFirst(command.toString(), "").
                         replaceFirst(command.isSudoer() ? properties.getPassword() : "", "").
@@ -102,7 +105,7 @@ public class TelnetConnection extends AbstractConnection<TelnetConnectionPropert
 
                 skipInputStreamToEnd(inputStream);
 
-                return CommandResult.builder().
+                CommandResult result = CommandResult.builder().
                         setStart(start).
                         setCommand(command.toString()).
                         setTimeout(timeout).
@@ -112,6 +115,8 @@ public class TelnetConnection extends AbstractConnection<TelnetConnectionPropert
                         setError("").
                         setEnd(end).
                         build();
+                logger.trace("The result of execution is:\n{}", result);
+                return result;
             } catch (InterruptedException | ExecutionException | IOException e) {
                 throw new ConnectionHandlingException("Failed to execute command '%s' on %s@%s:%d: %s", command,
                         properties.getUser(), properties.getHost(), properties.getPort(), e);
