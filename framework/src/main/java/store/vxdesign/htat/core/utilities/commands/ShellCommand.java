@@ -6,8 +6,11 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -15,6 +18,7 @@ public class ShellCommand {
     public static final String defaultSeparator = " ";
 
     private final List<Argument> arguments = new ArrayList<>();
+    private final List<ExpectAndSend> expectAndSends = new ArrayList<>();
 
     @Getter
     private boolean sudoer;
@@ -52,6 +56,14 @@ public class ShellCommand {
             return setter(shellCommand -> shellCommand.arguments.addAll(Arrays.stream(arguments).map(Option::new).collect(Collectors.toList())));
         }
 
+        public ShellCommandBuilder expectAndSend(String expected, String command) {
+            return setter(shellCommand -> shellCommand.expectAndSends.add(new ExpectAndSend(Pattern.compile(expected), command)));
+        }
+
+        public ShellCommandBuilder expectAndSend(Pattern expected, String command) {
+            return setter(shellCommand -> shellCommand.expectAndSends.add(new ExpectAndSend(expected, command)));
+        }
+
         public ShellCommand build() {
             return ShellCommand.this;
         }
@@ -59,6 +71,10 @@ public class ShellCommand {
 
     private static String getSudo() {
         return String.join(defaultSeparator, "sudo", "-S", "-p", "''");
+    }
+
+    public Collection<ExpectAndSend> getExpectAndSends() {
+        return Collections.unmodifiableCollection(expectAndSends);
     }
 
     @Override

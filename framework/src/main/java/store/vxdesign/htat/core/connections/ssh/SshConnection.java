@@ -99,13 +99,14 @@ public class SshConnection extends AbstractConnection<SshConnectionProperties> {
 
                 LocalDateTime start = LocalDateTime.now();
 
-                if (command.isSudoer()) {
-                    write(outputStream, properties.getPassword());
-                }
+                sudoerAuth(outputStream, command);
+
+                String lastSentCommand = expectAndSend(inputStream, outputStream, timeout, command);
 
                 logger.debug("Getting a result of execution");
-                String message = read(timeout, pattern, inputStream).
+                String message = read(inputStream, timeout, pattern).
                         replaceFirst(command.isSudoer() ? properties.getPassword() : "", "").
+                        replaceFirst(lastSentCommand != null ? lastSentCommand : "", "").
                         trim();
 
                 LocalDateTime end = LocalDateTime.now();

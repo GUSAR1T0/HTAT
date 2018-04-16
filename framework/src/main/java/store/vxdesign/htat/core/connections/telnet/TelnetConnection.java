@@ -39,13 +39,13 @@ public class TelnetConnection extends AbstractConnection<TelnetConnectionPropert
                 OutputStream outputStream = client.getOutputStream();
 
                 logger.trace("Authenticating as {} on host {}:{}", properties.getUser(), properties.getHost(), properties.getPort());
-                read(10, ConnectionPatterns.login, inputStream);
+                read(inputStream, 10, ConnectionPatterns.login);
                 write(outputStream, properties.getUser());
 
-                read(10, ConnectionPatterns.password, inputStream);
+                read(inputStream, 10, ConnectionPatterns.password);
                 write(outputStream, properties.getPassword());
 
-                read(10, ConnectionPatterns.prompt, inputStream);
+                read(inputStream, 10, ConnectionPatterns.prompt);
                 logger.trace("Authentication was passed successfully");
             } catch (InterruptedException | ExecutionException | IOException e) {
                 throw new ConnectionHandlingException("Failed to connect to %s@%s:%d: %s", properties.getUser(), properties.getHost(), properties.getPort(), e);
@@ -91,14 +91,15 @@ public class TelnetConnection extends AbstractConnection<TelnetConnectionPropert
                 logger.debug("Executing the command: {}", command);
                 write(outputStream, command.toString());
 
-                if (command.isSudoer()) {
-                    write(outputStream, properties.getPassword());
-                }
+                sudoerAuth(outputStream, command);
+
+                String lastSentCommand = expectAndSend(inputStream, outputStream, timeout, command);
 
                 logger.debug("Getting a result of execution");
-                String output = read(timeout, pattern, inputStream).
+                String output = read(inputStream, timeout, pattern).
                         replaceFirst(command.toString(), "").
                         replaceFirst(command.isSudoer() ? properties.getPassword() : "", "").
+                        replaceFirst(lastSentCommand != null ? lastSentCommand : "", "").
                         replaceAll(pattern != null ? pattern.pattern() : ConnectionPatterns.prompt.pattern(), "").
                         trim();
 

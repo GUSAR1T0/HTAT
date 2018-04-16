@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import store.vxdesign.htat.core.exceptions.ConnectionTimeoutException;
 import store.vxdesign.htat.core.exceptions.InstanceInitializationException;
 import store.vxdesign.htat.core.exceptions.PatternNotFoundException;
+import store.vxdesign.htat.core.utilities.commands.ExpectAndSend;
 import store.vxdesign.htat.core.utilities.commands.ShellCommand;
 
 import java.io.IOException;
@@ -137,7 +138,7 @@ public abstract class AbstractConnection<P extends ConnectionProperties> impleme
         outputStream.flush();
     }
 
-    protected String read(Integer timeout, Pattern pattern, InputStream inputStream) throws ExecutionException, InterruptedException {
+    protected String read(InputStream inputStream, Integer timeout, Pattern pattern) throws ExecutionException, InterruptedException {
         InputStreamReader inputStreamReader = new InputStreamReader(inputStream, Charset.defaultCharset());
         StringBuilder result = new StringBuilder();
 
@@ -176,6 +177,22 @@ public abstract class AbstractConnection<P extends ConnectionProperties> impleme
                 throw new ConnectionTimeoutException("Failed to read the input stream because time is over (%d s)", timeout);
             }
         }
+    }
+
+    protected void sudoerAuth(OutputStream outputStream, ShellCommand command) throws IOException {
+        if (command.isSudoer()) {
+            write(outputStream, properties.getPassword());
+        }
+    }
+
+    protected String expectAndSend(InputStream inputStream, OutputStream outputStream, Integer timeout, ShellCommand command) throws ExecutionException, InterruptedException, IOException {
+        String last = null;
+        for (ExpectAndSend expectAndSend : command.getExpectAndSends()) {
+            read(inputStream, timeout, expectAndSend.getExpected());
+            write(outputStream, expectAndSend.getCommand());
+            last = expectAndSend.getCommand();
+        }
+        return last;
     }
 
     protected void skipInputStreamToEnd(InputStream inputStream) throws IOException {
