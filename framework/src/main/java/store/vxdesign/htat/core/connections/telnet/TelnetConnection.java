@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 public class TelnetConnection extends AbstractConnection<TelnetConnectionProperties> {
-    private final int connectionTimeoutInMilliseconds = 10;
+    private final int connectionWaitingTimeoutInMilliseconds = 10;
 
     private TelnetClient client;
 
@@ -29,9 +29,10 @@ public class TelnetConnection extends AbstractConnection<TelnetConnectionPropert
     public void connect() {
         connect(() -> {
             try {
+                client.setConnectTimeout(connectionTimeoutInMilliseconds);
                 client.connect(properties.getHost(), properties.getPort());
                 while (!client.isConnected()) {
-                    TimeUnit.SECONDS.sleep(connectionTimeoutInMilliseconds);
+                    TimeUnit.SECONDS.sleep(connectionWaitingTimeoutInMilliseconds);
                 }
 
                 InputStream inputStream = client.getInputStream();

@@ -18,7 +18,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 public class SshConnection extends AbstractConnection<SshConnectionProperties> {
-    private final int connectionTimeoutInMilliseconds = 6000;
     private final int delayWaitTimeoutInMilliseconds = 10;
 
     private JSch jsch;

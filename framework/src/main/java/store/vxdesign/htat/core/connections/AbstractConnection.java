@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
 
 public abstract class AbstractConnection<P extends ConnectionProperties> implements Connection, Shell {
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+    protected final int connectionTimeoutInMilliseconds = 10000;
 
     @Getter
     protected final P properties;
