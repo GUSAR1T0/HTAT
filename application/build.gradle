@@ -1,9 +1,0 @@
-apply plugin: 'java'
-apply plugin: 'application'
-
-mainClassName = 'store.vxdesign.htat.Main'
-
-dependencies {
-	compile project(':Anemone')
-	testCompile 'org.junit.jupiter:junit-jupiter-api:5.1.0'
-}
