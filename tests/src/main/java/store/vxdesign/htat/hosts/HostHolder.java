@@ -20,6 +20,9 @@ public class HostHolder extends AbstractHostHolder {
     @Getter
     private final List<GeneralHost> generalHosts = new ArrayList<>();
 
+    @Getter
+    private boolean isInitialized = false;
+
     public HostHolder(MergedProperties mergedProperties) {
         super(mergedProperties);
     }
@@ -27,18 +30,30 @@ public class HostHolder extends AbstractHostHolder {
     @Override
     public void initialize() {
         initializeGeneralHosts();
-        logger.debug("The host holder was initialized successfully");
+        if (!isInitialized) {
+            isInitialized = true;
+            logger.debug("The host holder was initialized successfully");
+        } else {
+            logger.trace("The host holder was reinitialized successfully");
+        }
     }
 
     @Override
     public void stop() {
-        stopGeneralHosts();
-        logger.debug("The host holder was stopped successfully");
+        if (isInitialized) {
+            stopGeneralHosts();
+            isInitialized = false;
+            logger.debug("The host holder was stopped successfully");
+        } else {
+            logger.trace("The host holder has already stopped");
+        }
     }
 
     private void initializeGeneralHosts() {
-        logger.trace("Stopping the possible previous initialized general hosts list");
-        stopGeneralHosts();
+        if (isInitialized) {
+            logger.trace("Stopping the last initialized hosts list");
+            stopGeneralHosts();
+        }
         logger.trace("Initializing general hosts list");
         generalHosts.addAll(initialize(GeneralHostProperties.class, GeneralHost::new));
     }
