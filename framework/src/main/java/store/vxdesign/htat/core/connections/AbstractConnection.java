@@ -175,10 +175,12 @@ public abstract class AbstractConnection<P extends ConnectionProperties> impleme
                 return streamReaderTask.get();
             }
 
-            if (timeout != null && timeout != 0 && System.currentTimeMillis() - time >= timeout * 1000) {
+            if ((timeout == null && System.currentTimeMillis() - time >= connectionTimeoutInMilliseconds) ||
+                    (timeout != null && System.currentTimeMillis() - time >= timeout * 1000)) {
                 streamReaderTask.cancel(true);
                 streamReader.shutdownNow();
-                throw new ConnectionTimeoutException("Failed to read the input stream because time is over (%d s)", timeout);
+                int waitingTime = timeout != null ? timeout : connectionTimeoutInMilliseconds / 1000;
+                throw new ConnectionTimeoutException("Failed to read the input stream because time is over (%d s)", waitingTime);
             }
         }
     }
