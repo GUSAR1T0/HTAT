@@ -1,8 +1,8 @@
 package store.vxdesign.htat.hosts;
 
 import lombok.Getter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import store.vxdesign.htat.core.properties.MergedProperties;
@@ -15,7 +15,7 @@ import java.util.List;
 @Component
 @Scope("singleton")
 public class HostHolder extends AbstractHostHolder {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Getter
     private final List<GeneralHost> generalHosts = new ArrayList<>();

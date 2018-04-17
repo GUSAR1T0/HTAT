@@ -1,7 +1,7 @@
 package store.vxdesign.htat.hosts;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import store.vxdesign.htat.core.exceptions.InstanceInitializationException;
 import store.vxdesign.htat.core.properties.MergedProperties;
 import store.vxdesign.htat.hosts.common.Host;
@@ -15,7 +15,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public abstract class AbstractHostHolder {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final MergedProperties mergedProperties;
 
     AbstractHostHolder(MergedProperties mergedProperties) {

@@ -1,13 +1,14 @@
 package store.vxdesign.htat.core.connections;
 
 import lombok.Getter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import store.vxdesign.htat.core.exceptions.ConnectionTimeoutException;
 import store.vxdesign.htat.core.exceptions.InstanceInitializationException;
 import store.vxdesign.htat.core.exceptions.PatternNotFoundException;
 import store.vxdesign.htat.core.utilities.commands.ExpectAndSend;
 import store.vxdesign.htat.core.utilities.commands.ShellCommand;
+import store.vxdesign.htat.core.utilities.writers.CommandResultWriter;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,8 +26,9 @@ import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 public abstract class AbstractConnection<P extends ConnectionProperties> implements Connection, Shell {
-    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+    protected final Logger logger = LogManager.getLogger(this.getClass());
     protected final int connectionTimeoutInMilliseconds = 10000;
+    private final CommandResultWriter commandResultWriter;
 
     @Getter
     protected final P properties;
@@ -39,6 +41,7 @@ public abstract class AbstractConnection<P extends ConnectionProperties> impleme
     public AbstractConnection(P properties) {
         if (properties != null) {
             this.properties = properties;
+            commandResultWriter = CommandResultWriter.create(this);
         } else {
             throw new InstanceInitializationException("Connection instance cannot be created if properties are not stated");
         }
@@ -70,6 +73,7 @@ public abstract class AbstractConnection<P extends ConnectionProperties> impleme
     protected CommandResult execute(Supplier<CommandResult> supplier) {
         connect();
         CommandResult result = supplier.get();
+        commandResultWriter.write(result);
         scheduledFuture = startClosingTask();
         return result;
     }

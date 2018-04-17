@@ -1,13 +1,14 @@
 package store.vxdesign.htat.core.properties;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.boot.context.properties.bind.Bindable;
 import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
+import store.vxdesign.htat.core.utilities.common.Utils;
 
 import java.util.List;
 import java.util.Map;
@@ -17,7 +18,7 @@ import java.util.function.Supplier;
 @Component
 @Scope("singleton")
 public class MergedProperties {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private Environment environment;
 
@@ -29,16 +30,8 @@ public class MergedProperties {
         this.environment = ctx.getEnvironment();
     }
 
-    private <P extends Properties> String getPrefix(Class<P> clazz) {
-        try {
-            return (String) clazz.getDeclaredField("prefix").get(null);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            return clazz.getSimpleName().split("(?=\\p{Upper})")[0].toLowerCase();
-        }
-    }
-
     private <O, P extends Properties, B extends Bindable<O>> O getProperties(Class<P> clazz, String getterType, Supplier<B> function) {
-        String prefix = getPrefix(clazz);
+        String prefix = Utils.getClassPrefix(clazz);
         logger.trace("Search the '{}' properties by '{}' prefix", getterType, prefix);
         return Binder.get(environment).bind(prefix, function.get()).orElse(null);
     }
