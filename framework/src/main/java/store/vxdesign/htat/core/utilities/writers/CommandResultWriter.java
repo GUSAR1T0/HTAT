@@ -7,7 +7,7 @@ import org.apache.logging.log4j.core.config.Configuration;
 import store.vxdesign.htat.core.connections.AbstractConnection;
 import store.vxdesign.htat.core.connections.CommandResult;
 import store.vxdesign.htat.core.connections.ConnectionProperties;
-import store.vxdesign.htat.core.utilities.common.Utils;
+import store.vxdesign.htat.core.utilities.common.ReflectionUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -30,7 +30,7 @@ public class CommandResultWriter {
         String directoryPath = configuration.getStrSubstitutor().getVariableResolver().lookup("DIRECTORY_PATH");
         String connectionsDirectoryPath = configuration.getStrSubstitutor().getVariableResolver().lookup("CONNECTIONS_DIRECTORY_PATH").
                 replaceFirst("\\$\\{DIRECTORY_PATH}", directoryPath);
-        String connectionClass = Utils.getClassPrefix(connection.getClass());
+        String connectionClass = ReflectionUtils.getClassPrefix(connection.getClass());
         String connectionLogFileName = String.format("%s_%s_%s_%d.log", connectionClass,
                 connection.getProperties().getUser(), connection.getProperties().getHost(),
                 connection.getProperties().getPort());

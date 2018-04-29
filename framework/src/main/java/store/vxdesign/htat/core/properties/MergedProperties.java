@@ -8,7 +8,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
-import store.vxdesign.htat.core.utilities.common.Utils;
+import store.vxdesign.htat.core.utilities.common.ReflectionUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -31,7 +31,7 @@ public class MergedProperties {
     }
 
     private <O, P extends Properties, B extends Bindable<O>> O getProperties(Class<P> clazz, String getterType, Supplier<B> function) {
-        String prefix = Utils.getClassPrefix(clazz);
+        String prefix = ReflectionUtils.getClassPrefix(clazz);
         logger.trace("Search the '{}' properties by '{}' prefix", getterType, prefix);
         return Binder.get(environment).bind(prefix, function.get()).orElse(null);
     }

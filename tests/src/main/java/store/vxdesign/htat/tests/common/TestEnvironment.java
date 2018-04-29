@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import store.vxdesign.htat.runner.TestRunner;
+import store.vxdesign.htat.runners.TestRunner;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;

@@ -4,7 +4,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class Utils {
+public final class ReflectionUtils {
     public static String getClassPrefix(Class<?> clazz) {
         try {
             return (String) clazz.getDeclaredField("prefix").get(null);
