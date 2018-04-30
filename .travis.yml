@@ -5,7 +5,7 @@ jdk:
 
 sudo: false
 
-before_script:
+before_install:
  - chmod +x gradlew
 
-script: ./gradlew clean build
+install: ./gradlew clean build
