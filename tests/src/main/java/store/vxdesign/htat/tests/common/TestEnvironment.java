@@ -2,6 +2,7 @@ package store.vxdesign.htat.tests.common;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -19,14 +20,9 @@ import java.lang.annotation.Target;
 @SpringBootTest(classes = TestRunner.class)
 @ExtendWith(SpringExtension.class)
 @ExtendWith(TestCallbacksExtension.class)
+@Nested
 public @interface TestEnvironment {
-    Platform platform();
-
-    TestUnitType unitType() default TestUnitType.SINGLE_CASE;
-
-    enum Platform {
-        FUNCTIONAL_TEST, SYSTEM_TEST
-    }
+    TestUnitType unitType();
 
     @AllArgsConstructor(access = AccessLevel.PACKAGE)
     enum TestUnitType {

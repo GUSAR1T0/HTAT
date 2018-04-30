@@ -9,68 +9,71 @@ import store.vxdesign.htat.core.utilities.commands.ShellCommand;
 import store.vxdesign.htat.hosts.HostHolder;
 import store.vxdesign.htat.hosts.general.GeneralHost;
 import store.vxdesign.htat.tests.common.TestEnvironment;
-import store.vxdesign.htat.tests.common.TestExecutionType;
+import store.vxdesign.htat.tests.common.TestExecution;
 import store.vxdesign.htat.tests.fixtures.FunctionalTestFixture;
 
-@TestEnvironment(platform = TestEnvironment.Platform.FUNCTIONAL_TEST)
 @DisplayName("The first functional test case")
+@TestEnvironment(unitType = TestEnvironment.TestUnitType.SINGLE_CASE)
 public class FirstTestCase implements FunctionalTestFixture {
+    private static final ShellCommand hostInfo = ShellCommand.builder().command("uname").arguments("-a").build();
+    private static final ShellCommand listFilesAndDirectories = ShellCommand.builder().command("ls").arguments("-la").build();
+
     @Autowired
     private HostHolder holder;
 
     @Test
-    @TestExecutionType(executionType = TestExecutionType.ExecutionType.CRITICAL)
     @DisplayName("Get host information via SSH")
-    public void test01() {
+    @TestExecution(executionType = TestExecution.ExecutionType.CRITICAL)
+    void test01() {
         GeneralHost host = holder.getGeneralHosts().get(0);
-        CommandResult info = host.getConnections().getSshConnection().execute(ShellCommand.builder().command("uname").arguments("-a").build());
-        System.out.println(info);
-        Assertions.assertTrue(!info.getOutput().isEmpty(), "The output is empty");
+        CommandResult commandResult = host.getConnections().getSshConnection().execute(hostInfo);
+        System.out.println(commandResult);
+        Assertions.assertTrue(!commandResult.getOutput().isEmpty(), "The output is empty");
     }
 
     @Test
-    @TestExecutionType(executionType = TestExecutionType.ExecutionType.CRITICAL)
     @DisplayName("Get list files and directories on host via SSH")
-    public void test02() {
+    @TestExecution(executionType = TestExecution.ExecutionType.SIMPLE)
+    void test02() {
         GeneralHost host = holder.getGeneralHosts().get(0);
-        CommandResult listFilesAndDirectories = host.getConnections().getSshConnection().execute(ShellCommand.builder().command("ls").arguments("-la").build());
-        System.out.println(listFilesAndDirectories);
-        Assertions.assertTrue(!listFilesAndDirectories.getOutput().isEmpty(), "The output is empty");
+        CommandResult commandResult = host.getConnections().getSshConnection().execute(listFilesAndDirectories);
+        System.out.println(commandResult);
+        Assertions.assertTrue(!commandResult.getOutput().isEmpty(), "The output is empty");
     }
 
     @Test
-    @TestExecutionType(executionType = TestExecutionType.ExecutionType.CRITICAL)
     @DisplayName("Get host information via Telnet")
-    public void test03() {
+    @TestExecution(executionType = TestExecution.ExecutionType.CRITICAL)
+    void test03() {
         GeneralHost host = holder.getGeneralHosts().get(0);
-        CommandResult info = host.getConnections().getTelnetConnection().execute(ShellCommand.builder().command("uname").arguments("-a").build());
+        CommandResult info = host.getConnections().getTelnetConnection().execute(hostInfo);
         System.out.println(info);
         Assertions.assertTrue(!info.getOutput().isEmpty(), "The output is empty");
     }
 
     @Test
-    @TestExecutionType(executionType = TestExecutionType.ExecutionType.CRITICAL)
     @DisplayName("Get list files and directories on host via Telnet")
-    public void test04() {
+    @TestExecution(executionType = TestExecution.ExecutionType.SIMPLE)
+    void test04() {
         GeneralHost host = holder.getGeneralHosts().get(0);
-        CommandResult listFilesAndDirectories = host.getConnections().getTelnetConnection().execute(ShellCommand.builder().command("ls").arguments("-la").build());
-        System.out.println(listFilesAndDirectories);
-        Assertions.assertTrue(!listFilesAndDirectories.getOutput().isEmpty(), "The output is empty");
+        CommandResult commandResult = host.getConnections().getTelnetConnection().execute(listFilesAndDirectories);
+        System.out.println(commandResult);
+        Assertions.assertTrue(!commandResult.getOutput().isEmpty(), "The output is empty");
     }
 
     @Test
-    @TestExecutionType(executionType = TestExecutionType.ExecutionType.CRITICAL)
     @DisplayName("Change password for test user")
-    public void test05() {
+    @TestExecution(executionType = TestExecution.ExecutionType.CRITICAL)
+    void test05() {
         GeneralHost host = holder.getGeneralHosts().get(0);
-        ShellCommand command = ShellCommand.builder().
+        ShellCommand changePassword = ShellCommand.builder().
                 sudo().
                 command("passwd").arguments("testuser").
                 expectAndSend("Enter new UNIX password:", "12345678").
                 expectAndSend("Retype new UNIX password:", "12345678").
                 build();
-        CommandResult info = host.getConnections().getSshConnection().execute(command);
-        System.out.println(info);
-        Assertions.assertTrue(!info.getOutput().isEmpty(), "The output is empty");
+        CommandResult commandResult = host.getConnections().getSshConnection().execute(changePassword);
+        System.out.println(commandResult);
+        Assertions.assertTrue(!commandResult.getOutput().isEmpty(), "The output is empty");
     }
 }
