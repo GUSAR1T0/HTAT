@@ -30,8 +30,8 @@ class TestExceptionExtension implements ExecutionCondition, TestExecutionExcepti
             return ConditionEvaluationResult.disabled("");
         }
 
-        Optional<TestExecutionType> annotation = AnnotationSupport.findAnnotation(context.getElement(), TestExecutionType.class);
-        if (annotation.isPresent() && TestExecutionType.ExecutionType.CRITICAL.equals(annotation.get().executionType())) {
+        Optional<TestExecution> annotation = AnnotationSupport.findAnnotation(context.getElement(), TestExecution.class);
+        if (annotation.isPresent() && TestExecution.ExecutionType.CRITICAL.equals(annotation.get().executionType())) {
             return disableIfSkipTestIsRequired(context);
         }
         return ConditionEvaluationResult.enabled("");
@@ -39,8 +39,8 @@ class TestExceptionExtension implements ExecutionCondition, TestExecutionExcepti
 
     @Override
     public void handleTestExecutionException(ExtensionContext context, Throwable throwable) throws Throwable {
-        Optional<TestExecutionType> annotation = AnnotationSupport.findAnnotation(context.getElement(), TestExecutionType.class);
-        if (annotation.isPresent() && TestExecutionType.ExecutionType.CRITICAL.equals(annotation.get().executionType())) {
+        Optional<TestExecution> annotation = AnnotationSupport.findAnnotation(context.getElement(), TestExecution.class);
+        if (annotation.isPresent() && TestExecution.ExecutionType.CRITICAL.equals(annotation.get().executionType())) {
             ExtensionContextUtils.saveValueInContext(context, skipTestKey, true);
             logger.fatal("Exception was thrown when critical test step was executing", throwable);
             logger.info("All following tests will be ignored");

@@ -10,8 +10,8 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @ExtendWith(TestExceptionExtension.class)
-public @interface TestExecutionType {
-    ExecutionType executionType() default ExecutionType.SIMPLE;
+public @interface TestExecution {
+    ExecutionType executionType();
 
     enum ExecutionType {
         SIMPLE, CRITICAL
