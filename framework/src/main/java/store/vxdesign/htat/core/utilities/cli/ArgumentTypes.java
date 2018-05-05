@@ -79,4 +79,17 @@ interface ArgumentTypes {
             return this.name().toLowerCase();
         }
     }
+
+    enum LogLevel {
+        OFF, INFO, DEBUG, WARN, ERROR, FATAL, TRACE, ALL;
+
+        static LogLevel getValue(String name) {
+            return ArgumentTypes.getValue(values(), value -> value.toString().equalsIgnoreCase(name));
+        }
+
+        @Override
+        public String toString() {
+            return this.name().toLowerCase();
+        }
+    }
 }

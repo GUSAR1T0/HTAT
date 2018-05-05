@@ -27,7 +27,7 @@ import store.vxdesign.htat.core.exceptions.ArgumentValidationException;
 import store.vxdesign.htat.core.utilities.common.StringUtils;
 
 interface Validators {
-    class TestNameValidator implements IValueValidator<String> {
+    class NonNullAndNonEmptyStringValidator implements IValueValidator<String> {
         @Override
         public void validate(String name, String value) throws ParameterException {
             if (StringUtils.isNullOrEmpty(value)) {

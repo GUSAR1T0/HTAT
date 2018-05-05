@@ -37,9 +37,36 @@ public final class Arguments {
     @Parameter(names = {"--test-instance-type", "-it"}, description = "Test instance type for launching", required = true, converter = Converters.TestInstanceTypeConverter.class)
     private ArgumentTypes.TestInstanceType testInstanceType = null;
 
-    @Parameter(names = {"--test-name", "-t"}, description = "Test name that should be performed", required = true, validateValueWith = Validators.TestNameValidator.class)
+    @Parameter(names = {"--test-name", "-t"}, description = "Test name that should be performed", required = true, validateValueWith = Validators.NonNullAndNonEmptyStringValidator.class)
     private String test = null;
+
+    @Parameter(names = {"--properties", "-pf"}, description = "Path to properties file", validateValueWith = Validators.NonNullAndNonEmptyStringValidator.class)
+    private String properties = null;
+
+    @Parameter(names = {"--log-path", "-lp"}, description = "Path to log directory", validateValueWith = Validators.NonNullAndNonEmptyStringValidator.class)
+    private String logPath = null;
+
+    @Parameter(names = {"--log-level-spring", "-lls"}, description = "Logging level of Spring specific code", converter = Converters.LogLevelConverter.class)
+    private ArgumentTypes.LogLevel springLogLevel = null;
+
+    @Parameter(names = {"--log-level-application", "-lla"}, description = "Logging level of HTAT application code", converter = Converters.LogLevelConverter.class)
+    private ArgumentTypes.LogLevel applicationLogLevel = null;
 
     @Parameter(names = {"--help", "-h"}, description = "Show help menu how to work with application", help = true)
     private boolean help = false;
+
+    public void prepareVirtualMachineArguments() {
+        if (properties != null) {
+            System.setProperty("properties", properties);
+        }
+        if (logPath != null) {
+            System.setProperty("log.path", logPath);
+        }
+        if (springLogLevel != null) {
+            System.setProperty("log.level.spring", springLogLevel.toString());
+        }
+        if (applicationLogLevel != null) {
+            System.setProperty("log.level.application", applicationLogLevel.toString());
+        }
+    }
 }
