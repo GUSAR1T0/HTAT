@@ -52,7 +52,7 @@ dependencies {
 	}
 }
 
-mainClassName = 'store.vxdesign.htat.runners.MainRunner'
+mainClassName = 'store.vxdesign.htat.tests.runners.ConsoleRunner'
 
 sourceSets {
 	main {
