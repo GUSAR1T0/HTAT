@@ -73,5 +73,10 @@ interface ArgumentTypes {
         static TestInstanceType getValue(String name) {
             return ArgumentTypes.getValue(values(), value -> value.toString().equalsIgnoreCase(name));
         }
+
+        @Override
+        public String toString() {
+            return this.name().toLowerCase();
+        }
     }
 }
