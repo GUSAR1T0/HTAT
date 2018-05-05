@@ -11,14 +11,19 @@ VM arguments are paths to properties file, logging level for application, path f
 * `-Dproperties=path/to/main.properties` - this argument is needed to set for application some properties for remote connections (*example of properties is put below*).
 * `-Dlog.level.application=[off|info|debug|warn|error|fatal|trace|all]` - this argument is needed to set a logging level for application component.
 * `-Dlog.level.spring=[off|info|debug|warn|error|fatal|trace|all]` - this argument is needed to set a logging level only for Spring Boot dependency.
-* `-Dlog.path=path/to/logs` - this argument is needed to set a path for log saving.
+* `-Dlog.path=path/to/logs` - this argument is needed to set a path for log directory saving.
 
 ## Application arguments
 
 Application arguments are help menu and classpath to test case or suite.
 
-* `-h` or `--help` - this arguments is needed to show all application arguments.
-* `-t` or `--test` - this arguments is needed to set classpath to test scenario.
+* `-h` or `--help` - this argument is needed to show all application arguments.
+* `-p=[ft|st]` or `--test-platform=[ft|st]` - this argument set a test platform.
+* `-ut=[case|suite]` or `--test-unit-type=[case|suite]` - this argument set a type of test scenario.
+* `-it=[method|class|package]` or `--test-instance-type=[method|class|package]` - this argument set a type of test instance.
+* `-t=...` or `--test-name=...` - this argument set a name of test what should be executed.
+
+**Example:** `-p=ft -ut=case -it=class -t=FirstTestCase` or `-p=ft -ut=suite -it=class -t=FirstTestSuite`.
 
 ## Example of properties
 
