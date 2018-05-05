@@ -19,12 +19,43 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package store.vxdesign.htat.runners;
+package store.vxdesign.htat.tests.common;
 
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.FilterType;
+import io.bretty.console.tree.PrintableTreeNode;
+import org.junit.platform.launcher.TestIdentifier;
 
-@ComponentScan(value = "store.vxdesign.htat",
-        excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = ConsoleRunner.class))
-public class TestRunner {
+import java.util.ArrayList;
+import java.util.List;
+
+public class TestTreeNode implements PrintableTreeNode {
+    private final TestIdentifier test;
+    private final List<TestTreeNode> children = new ArrayList<>();
+
+    private TestStatus status;
+
+    public TestTreeNode(TestIdentifier test) {
+        this.test = test;
+    }
+
+    public void addChild(TestTreeNode node) {
+        children.add(node);
+    }
+
+    public void setStatus(TestStatus status) {
+        this.status = status;
+    }
+
+    @Override
+    public String name() {
+        if (test != null) {
+            return (status != null ? "[" + status + "] " : "") + test.getDisplayName();
+        } else {
+            return "HTAT test tree";
+        }
+    }
+
+    @Override
+    public List<TestTreeNode> children() {
+        return children;
+    }
 }

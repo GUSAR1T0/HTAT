@@ -35,7 +35,7 @@ import store.vxdesign.htat.tests.fixtures.FunctionalTestFixture;
 
 @DisplayName("The first functional test case")
 @TestEnvironment(unitType = TestEnvironment.TestUnitType.SINGLE_CASE)
-public class FirstTestCase implements FunctionalTestFixture {
+public class FirstTestCase extends FunctionalTestFixture {
     private static final ShellCommand hostInfo = ShellCommand.builder().command("uname").arguments("-a").build();
     private static final ShellCommand listFilesAndDirectories = ShellCommand.builder().command("ls").arguments("-la").build();
 

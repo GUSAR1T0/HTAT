@@ -19,28 +19,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package store.vxdesign.htat.tests.platforms.ft.testsuites;
+package store.vxdesign.htat.tests.engine;
 
-import org.junit.jupiter.api.DisplayName;
-import store.vxdesign.htat.tests.common.TestEnvironment;
-import store.vxdesign.htat.tests.fixtures.FunctionalTestFixture;
-import store.vxdesign.htat.tests.platforms.ft.testcases.FirstTestCase;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 
-@DisplayName("The first functional test suite")
-@TestEnvironment(unitType = TestEnvironment.TestUnitType.SUITE)
-class FirstTestSuite extends FunctionalTestFixture {
-    @DisplayName("The third test case of functional test suite")
-    @TestEnvironment(unitType = TestEnvironment.TestUnitType.CASE_OF_SUITE)
-    class TestCase03 extends FirstTestCase {
-    }
+import java.util.ArrayList;
+import java.util.List;
 
-    @DisplayName("The second test case of functional test suite")
-    @TestEnvironment(unitType = TestEnvironment.TestUnitType.CASE_OF_SUITE)
-    class TestCase02 extends FirstTestCase {
-    }
+public final class TestResultsHandler {
+    @Getter
+    @Setter(AccessLevel.PACKAGE)
+    private static boolean console;
 
-    @DisplayName("The first test case of functional test suite")
-    @TestEnvironment(unitType = TestEnvironment.TestUnitType.CASE_OF_SUITE)
-    class TestCase01 extends FirstTestCase {
-    }
+    @Getter
+    private static final List<String> skippedTests = new ArrayList<>();
 }

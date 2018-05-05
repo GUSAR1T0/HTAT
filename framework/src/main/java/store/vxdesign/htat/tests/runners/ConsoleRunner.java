@@ -19,27 +19,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package store.vxdesign.htat.runners;
+package store.vxdesign.htat.tests.runners;
 
 import com.beust.jcommander.JCommander;
-import org.junit.platform.console.ConsoleLauncher;
 import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import store.vxdesign.htat.core.utilities.cli.Arguments;
+import store.vxdesign.htat.tests.engine.JUnit5TestEngine;
 
 @SpringBootApplication(scanBasePackages = "store.vxdesign.htat")
 public class ConsoleRunner implements CommandLineRunner {
     @Override
     public void run(String... args) {
-        CommandLineArguments parsedCommandLineArguments = new CommandLineArguments();
-        JCommander commandLineArguments = new JCommander(parsedCommandLineArguments);
+        Arguments parsedArguments = new Arguments();
+        JCommander commandLineArguments = new JCommander(parsedArguments);
         commandLineArguments.parse(args);
         commandLineArguments.setProgramName("Host Test Automation Tool");
-        if (parsedCommandLineArguments.isHelp()) {
+        if (parsedArguments.isHelp()) {
             commandLineArguments.usage();
         } else {
-            ConsoleLauncher.main(parsedCommandLineArguments.getArguments());
+            JUnit5TestEngine engine = new JUnit5TestEngine(parsedArguments);
+            engine.launch();
+            System.exit(engine.getExitStatus());
         }
     }
 
