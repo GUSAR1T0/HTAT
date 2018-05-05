@@ -39,7 +39,7 @@ interface ArgumentTypes {
         }
 
         static TestPlatform getValue(String name) {
-            return ArgumentTypes.getValue(values(), value -> value.platform.equals(name));
+            return ArgumentTypes.getValue(values(), value -> value.platform.equalsIgnoreCase(name));
         }
 
         @Override
