@@ -56,4 +56,11 @@ interface Converters {
             return Converters.convert(value, () -> ArgumentTypes.TestInstanceType.getValue(value));
         }
     }
+
+    class LogLevelConverter implements IStringConverter<ArgumentTypes.LogLevel> {
+        @Override
+        public ArgumentTypes.LogLevel convert(String value) {
+            return Converters.convert(value, () -> ArgumentTypes.LogLevel.getValue(value));
+        }
+    }
 }

@@ -31,22 +31,28 @@ import store.vxdesign.htat.tests.engine.JUnit5TestEngine;
 
 @SpringBootApplication(scanBasePackages = "store.vxdesign.htat")
 public class ConsoleRunner implements CommandLineRunner {
+    private static Arguments arguments;
+    private static JCommander commandLineArguments;
+
     @Override
     public void run(String... args) {
-        Arguments parsedArguments = new Arguments();
-        JCommander commandLineArguments = new JCommander(parsedArguments);
-        commandLineArguments.parse(args);
-        commandLineArguments.setProgramName("Host Test Automation Tool");
-        if (parsedArguments.isHelp()) {
+        if (arguments.isHelp()) {
             commandLineArguments.usage();
         } else {
-            JUnit5TestEngine engine = new JUnit5TestEngine(parsedArguments);
+            JUnit5TestEngine engine = new JUnit5TestEngine(arguments);
             engine.launch();
             System.exit(engine.getExitStatus());
         }
     }
 
     public static void main(String[] args) {
+        arguments = new Arguments();
+        commandLineArguments = new JCommander(arguments);
+        commandLineArguments.parse(args);
+        commandLineArguments.setProgramName("Host Test Automation Tool");
+
+        arguments.prepareVirtualMachineArguments();
+
         SpringApplication application = new SpringApplication(ConsoleRunner.class);
         application.setBannerMode(Banner.Mode.OFF);
         application.run(args);
