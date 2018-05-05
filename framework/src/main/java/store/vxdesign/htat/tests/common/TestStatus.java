@@ -19,21 +19,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package store.vxdesign.htat.tests.fixtures;
+package store.vxdesign.htat.tests.common;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import store.vxdesign.htat.hosts.HostHolder;
+public enum TestStatus {
+    FAIL("✖"), SKIP("⌾"), SUCCESS("✔");
 
-interface Fixture {
-    default void preparation(String step, Runnable runnable) {
-        Logger logger = LogManager.getLogger();
-        logger.info("Prepare to {} the testing", step);
-        runnable.run();
-        logger.info("Preparation to {} is over", step);
+    private final String symbol;
+
+    TestStatus(String symbol) {
+        this.symbol = symbol;
     }
 
-    void setup(HostHolder holder);
-
-    void teardown(HostHolder holder);
+    @Override
+    public String toString() {
+        return symbol;
+    }
 }

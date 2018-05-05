@@ -29,10 +29,10 @@ import store.vxdesign.htat.hosts.HostHolder;
 import store.vxdesign.htat.tests.common.TestEnvironment;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public interface SystemTestFixture extends Fixture {
+public class SystemTestFixture implements Fixture<HostHolder> {
     @BeforeAll
     @Override
-    default void setup(@Autowired HostHolder holder) {
+    public void setup(@Autowired HostHolder holder) {
         TestEnvironment testEnvironment = getClass().getAnnotation(TestEnvironment.class);
         if (testEnvironment != null && testEnvironment.unitType() != TestEnvironment.TestUnitType.CASE_OF_SUITE) {
             preparation("begin", holder::initialize);
@@ -41,7 +41,7 @@ public interface SystemTestFixture extends Fixture {
 
     @AfterAll
     @Override
-    default void teardown(@Autowired HostHolder holder) {
+    public void teardown(@Autowired HostHolder holder) {
         TestEnvironment testEnvironment = getClass().getAnnotation(TestEnvironment.class);
         if (testEnvironment != null && testEnvironment.unitType() != TestEnvironment.TestUnitType.CASE_OF_SUITE) {
             preparation("end", holder::stop);

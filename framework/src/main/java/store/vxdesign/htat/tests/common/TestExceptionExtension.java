@@ -28,6 +28,7 @@ import org.junit.jupiter.api.extension.ExecutionCondition;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.TestExecutionExceptionHandler;
 import org.junit.platform.commons.support.AnnotationSupport;
+import store.vxdesign.htat.tests.engine.TestResultsHandler;
 
 import java.util.Optional;
 
@@ -38,7 +39,11 @@ class TestExceptionExtension implements ExecutionCondition, TestExecutionExcepti
 
     private static boolean skipTests(ExtensionContext context) {
         ExtensionContext containerContext = context.getParent().orElseThrow(IllegalStateException::new);
-        return ExtensionContextUtils.getValueFromContext(containerContext, skipTestKey, ignoredKey -> false);
+        boolean skipTests = ExtensionContextUtils.getValueFromContext(containerContext, skipTestKey, ignoredKey -> false);
+        if (TestResultsHandler.isConsole() && skipTests) {
+            TestResultsHandler.getSkippedTests().add(context.getUniqueId());
+        }
+        return skipTests;
     }
 
     private ConditionEvaluationResult disableIfSkipTestIsRequired(ExtensionContext context) {

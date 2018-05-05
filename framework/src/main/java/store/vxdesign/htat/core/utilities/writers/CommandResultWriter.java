@@ -22,7 +22,6 @@
 package store.vxdesign.htat.core.utilities.writers;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
 import store.vxdesign.htat.core.connections.AbstractConnection;
@@ -30,19 +29,13 @@ import store.vxdesign.htat.core.connections.CommandResult;
 import store.vxdesign.htat.core.connections.ConnectionProperties;
 import store.vxdesign.htat.core.utilities.common.ReflectionUtils;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Collections;
 
-public class CommandResultWriter {
-    private final Logger logger = LogManager.getLogger(this.getClass());
-    private final File connectionDirectoryPath;
-    private final File connectionLogFileName;
-
-    private CommandResultWriter(String connectionDirectoryPath, String connectionLogFileName) {
-        this.connectionDirectoryPath = new File(connectionDirectoryPath);
-        this.connectionLogFileName = new File(connectionLogFileName);
+public class CommandResultWriter extends AbstractWriter {
+    private CommandResultWriter(String directoryPath, String logFileName) {
+        super(directoryPath, logFileName);
     }
 
     public static <P extends ConnectionProperties> CommandResultWriter create(AbstractConnection<P> connection) {
@@ -59,11 +52,10 @@ public class CommandResultWriter {
     }
 
     public void write(CommandResult commandResult) {
-        if (!connectionDirectoryPath.exists()) {
-            connectionDirectoryPath.mkdirs();
+        if (!directoryPath.exists()) {
+            directoryPath.mkdirs();
         }
 
-        File logFile = new File(connectionDirectoryPath.getAbsoluteFile() + "/" + connectionLogFileName.getName());
         try (FileOutputStream fos = new FileOutputStream(logFile, true)) {
             String delimiter = String.format("* %s *", String.join("", Collections.nCopies(200, "-")));
             String stringToLog = delimiter +
@@ -74,7 +66,7 @@ public class CommandResultWriter {
                     System.lineSeparator();
             fos.write(stringToLog.getBytes());
         } catch (IOException e) {
-            logger.error("Failed to write a command result in {}", logFile);
+            logger.error("Failed to write in {} file current command result:\n{}", logFile, commandResult);
         }
     }
 }

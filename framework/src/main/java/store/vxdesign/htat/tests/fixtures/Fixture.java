@@ -21,30 +21,19 @@
  */
 package store.vxdesign.htat.tests.fixtures;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.TestInstance;
-import org.springframework.beans.factory.annotation.Autowired;
-import store.vxdesign.htat.hosts.HostHolder;
-import store.vxdesign.htat.tests.common.TestEnvironment;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import store.vxdesign.htat.hosts.AbstractHostHolder;
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class FunctionalTestFixture implements Fixture<HostHolder> {
-    @BeforeAll
-    @Override
-    public void setup(@Autowired HostHolder holder) {
-        TestEnvironment testEnvironment = getClass().getAnnotation(TestEnvironment.class);
-        if (testEnvironment != null && testEnvironment.unitType() != TestEnvironment.TestUnitType.CASE_OF_SUITE) {
-            preparation("begin", holder::initialize);
-        }
+interface Fixture<H extends AbstractHostHolder> {
+    default void preparation(String step, Runnable runnable) {
+        Logger logger = LogManager.getLogger();
+        logger.info("Prepare to {} the testing", step);
+        runnable.run();
+        logger.info("Preparation to {} is over", step);
     }
 
-    @AfterAll
-    @Override
-    public void teardown(@Autowired HostHolder holder) {
-        TestEnvironment testEnvironment = getClass().getAnnotation(TestEnvironment.class);
-        if (testEnvironment != null && testEnvironment.unitType() != TestEnvironment.TestUnitType.CASE_OF_SUITE) {
-            preparation("end", holder::stop);
-        }
-    }
+    void setup(H holder);
+
+    void teardown(H holder);
 }
