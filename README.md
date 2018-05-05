@@ -47,8 +47,6 @@ When you built and prepared the JAR file, you can perform testing:
 ~/HTAT> java -jar [VM arguments] Boronia/build/libs/Boronia-[VERSION].jar [application arguments]
 ```
 
-VM arguments are paths to properties file, logging level for application, path for logging. Application arguments are help menu and classpath to test case or suite.
-
 *Notice*: full information about arguments is described into Boronia/README.md file.
 
 ## License
